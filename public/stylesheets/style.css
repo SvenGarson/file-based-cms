@@ -1,0 +1,10 @@
+.container {
+  margin: 25px;
+  font-family: sans-serif;
+}
+
+.message {
+  background-color: #FFFF99;
+  padding: 10px;
+}
+

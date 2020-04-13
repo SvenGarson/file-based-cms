@@ -11,3 +11,11 @@ Is a `Markup language` that supports list formatting out of the box like so:
   - Even Sub-lists
 - Third line
 - etc.
+
+This is __FAT__.
+
+This is _italic_.
+
+
+Woooooho PPM :)
+WOo

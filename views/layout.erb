@@ -1,17 +1,25 @@
 <!doctype html>
 <html lang="en-US">
   <head>
-
+    <meta charset="utf-8">
+    
     <title>File Based Content Management System</title>
-    <meta charset="UTF-8">
+
+    <link rel="stylesheet" href="/stylesheets/style.css">
 
   </head>
 
-  <% if error? %>
-    <p><%= retrieve_error %></p>
-  <% end %>
+  <body class="container">
 
-  <body>
+    <% if error? %>
+      <p class="message"><%= retrieve_error %></p>
+    <% end %>
+
+    <% if success? %>
+      <p class="message"><%= retrieve_success %></p>
+    <% end %>
+
     <%= yield %>
+
   </body>
 </html>
