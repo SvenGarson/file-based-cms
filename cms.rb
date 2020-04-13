@@ -143,8 +143,21 @@ def document_text_contents_for(document_name_with_extension)
   document_for(document_name_with_extension)[:text]
 end
 
-def add_document(name)
-  File.open(File.join(document_path, name), 'w')
+def valid_document_name?(document_name)
+  %w(.txt .md).any? { |extension| document_name.end_with?(extension) }
+end
+
+def add_document(document_name)
+  File.open(File.join(document_path, document_name), 'w')
+end
+
+def delete_document(document_name)
+  if document_exists?(document_name)
+    File.delete(File.join(document_path, document_name))
+    true
+  else
+    false
+  end
 end
 
 # Routes
@@ -171,7 +184,15 @@ post '/new' do
   if new_document_name.empty?
     # retry
     record_error('A name is required.')
+    status(400)
 
+    @default_new_file_name = new_document_name
+    erb(:new, layout: :layout)
+  elsif !valid_document_name?(new_document_name)
+    # invalid file extension
+    record_error("Document name must end in either '.txt' or '.md'.")
+    status 400
+    
     @default_new_file_name = new_document_name
     erb(:new, layout: :layout)
   else
@@ -213,6 +234,22 @@ get '/:document_name/edit' do
   else
     record_error("#{@document_name} does not exist.")
     redirect('/')
+  end
+end
+
+# Delete specific document
+post '/:document_name/delete' do
+  document_name = params[:document_name]
+
+  if delete_document(document_name)
+    record_success("#{document_name} was deleted.")
+    redirect('/')
+  else
+    status(400)
+    record_error("#{document_name} does not exist.")
+    
+    @all_document_names = all_document_names_with_extension.sort
+    erb(:index, layout: :layout)
   end
 end
 

@@ -1,6 +1,9 @@
 <ul>
   <% @all_document_names.each do |document_name| %>
     <li>
+      <form action="/<%= document_name %>/delete" method="post" class="inline">
+        <button type="submit">delete</button>
+      </form>
       <a href="/<%= document_name %>/edit">(edit)</a>
       <a href="/<%= document_name %>">
         <%= document_name %>

@@ -115,12 +115,51 @@ class AppTest < Minitest::Test
     assert_equal(last_response.body, 'replacement text')
   end
 
-  def test_new_document
+  def test_document_new
     get '/new'
 
     assert_equal(200, last_response.status)
     assert_includes(last_response.body, 'name="new_document_name"')
     assert_includes(last_response.body, '<input type="submit"')
+  end
+
+  def test_document_creation
+    post '/new', new_document_name: ''
+    assert_equal(400, last_response.status)
+    assert_includes(last_response.body, 'A name is required.')
+
+    post '/new', new_document_name: 'some_name.txt'
+    assert_equal(302, last_response.status)
+
+    get last_response[HEADER_LOCATION]
+    assert_equal(200, last_response.status)
+    assert_includes(last_response.body, 'some_name.txt was created.')
+
+    get '/'
+    assert_includes(last_response.body, 'some_name.txt')
+  end
+
+  def test_document_invalid_deletion
+    post '/some.txt/delete'
+    assert_equal(400, last_response.status)
+    assert_includes(last_response.body, 'some.txt does not exist.')
+  end
+
+  def test_document_valid_deletion
+    add_document('some.txt')
+    
+    get '/'
+    assert_includes(last_response.body, 'some.txt')
+
+    post '/some.txt/delete'
+    assert_equal(302, last_response.status)
+
+    get last_response[HEADER_LOCATION]
+    assert_equal(200, last_response.status)
+    assert_includes(last_response.body, 'some.txt was deleted.')
+
+    get '/'
+    refute_includes(last_response.body, 'some.txt')
   end
   
 end
