@@ -13,3 +13,18 @@
 </ul>
 
 <a href="/new">New Document</a>
+<br>
+<br>
+
+<% if signed_in? %>
+  <p class="inline" style="font-style: italic;">Signed in as <%= user_name %>.</p>
+
+  <form action="/users/signout" method="post" class="inline">
+    <button style="submit">Sign Out</button>
+  </form>
+<% else %>
+
+  <form action="/users/signin" method="get" class="inline">
+    <button style="submit">Sign In</button>
+  </form>
+<% end %>

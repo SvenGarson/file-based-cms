@@ -1,4 +1,6 @@
 require_relative 'header_helpers'
+require_relative 'user'
+
 require 'sinatra'
 require 'sinatra/reloader' if development?
 require 'redcarpet'
@@ -6,10 +8,13 @@ require 'redcarpet'
 # useful constants
 MARKDOWN_PARSER = Redcarpet::Markdown.new(Redcarpet::Render::HTML)
 
+# temporary admin user data
+USER = User.new('admin', 'secret', false)
+
 # sinatra configuration
 configure do
   enable(:sessions)
-  set(:session_secret, 'bad_secret')
+  set(:session_secret, 'bad_session_secret')
 end
 
 # sinatra before every route block
@@ -160,6 +165,18 @@ def delete_document(document_name)
   end
 end
 
+def signed_in?
+  USER.signed_in?
+end
+
+def signed_out?
+  USER.signed_out?
+end
+
+def user_name
+  USER.name
+end
+
 # Routes
 # Show list of all text documents
 get '/' do
@@ -265,6 +282,41 @@ post '/:document_name/update' do
     record_success("#{document_name} has been updated.")
   else
     record_error("#{document_name} does not exist.")
+  end
+
+  redirect('/')
+end
+
+# Fill signing form
+get '/users/signin' do
+  @default_username = ''
+  @default_password = ''
+  erb(:signin, layout: :layout)
+end
+
+# Sign in request
+post '/users/signin' do
+  request_username = params[:username]
+  request_password = params[:password]
+
+  if USER.signing_credentials_match?(request_username, request_password)
+    USER.sign_in
+    record_success('Welcome!')
+    redirect('/')
+  else
+    record_error('Invalid credentials.')
+
+    @default_username = request_username
+    @default_password = request_password
+    erb(:signin, layout: :layout)
+  end
+end
+
+# Sign out request
+post '/users/signout' do
+  if signed_in?
+    USER.toggle_signed_in
+    record_success('You have been signed out.')
   end
 
   redirect('/')
